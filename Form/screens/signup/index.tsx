@@ -1,11 +1,14 @@
 import { View, Text,TextInput,StyleSheet,Pressable, Alert, TouchableOpacity, Image } from 'react-native'
 import React, { useState,useRef } from 'react'
 import { useNavigation } from '@react-navigation/native';
+import Snackbar from "react-native-snackbar"
 
 const Signup = () => {
 
+    // NAVIGATION HOOK
   const navigator = useNavigation(); 
 
+  // ALL DECLARED STATE HOOKS
   const [user, setUser] = useState('')
   const [email, setEmail] = useState('')
   const [pass, setPass] = useState('')
@@ -15,8 +18,13 @@ const Signup = () => {
   const [eyeImage, setEyeImage] = useState(`https://cdn2.iconfinder.com/data/icons/pittogrammi/142/61-512.png`)
   const [eyeImage2, setEyeImage2] = useState(`https://cdn2.iconfinder.com/data/icons/pittogrammi/142/61-512.png`)
 
-  
+
+  // DECLARED REGEX.
+  const passwordReg= /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/;
+  const emailReg = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
    
+
+    //FUNTION FOR THE SHOW AND HIDE PASSWORD
   const toggle = () => {
     setSecureTextEntry(!secureTextEntry)
     setEyeImage(secureTextEntry ? `https://cdn2.iconfinder.com/data/icons/pittogrammi/142/61-512.png` : `https://static-00.iconduck.com/assets.00/eye-password-hide-icon-512x512-iv45hct9.png`)
@@ -28,40 +36,70 @@ const Signup = () => {
     setEyeImage2(secureTextEntry2 ? `https://cdn2.iconfinder.com/data/icons/pittogrammi/142/61-512.png` : `https://static-00.iconduck.com/assets.00/eye-password-hide-icon-512x512-iv45hct9.png`)
   }
 
+
+  // ALL DECLARED REFRENCES
   const emailRef=useRef()
   const passRef=useRef()
   const cPassRef=useRef()
 
-  const validate=()=>{
+  // const validate=()=>{
 
-    const pReg= /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/;
-    const emailReg = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+    // const pReg= /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/;
+    // const emailReg = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
 
-    if(email == '' && pass == ''){
-      Alert.alert("Form is not filled")
-    }
-    else if(!emailReg.test(email)){
-      Alert.alert("Enter The Valid Email");
-    }else if (!pReg.test(pass)) {
-      Alert.alert('Please Enter valid Password');
-    }else if (cpass!==pass) {
-      Alert.alert('you have entered the wrong confirm password'); 
-    }else {
-      Alert.alert('Successfully Submitted');
-    }
+  //   if(email == '' && pass == ''){
+  //     Alert.alert("Form is not filled")
+  //   }
+  //   else if(!emailReg.test(email)){
+  //     Alert.alert("Enter The Valid Email");
+  //   }else if (!pReg.test(pass)) {
+  //     Alert.alert('Please Enter valid Password');
+  //   }else if (cpass!==pass) {
+  //     Alert.alert('you have entered the wrong confirm password'); 
+  //   }else {
+  //     Alert.alert('Successfully Submitted');
+  //   }
 
-  }
+  // }
+
+  
+  // ACTIVE OPACITY VALIDATIONS
+  const verifyUser = user.length > 0;
+  const verifyEmail = emailReg.test(email);
+  const verifyPassword = passwordReg.test(pass);
+  const verifyCpassword = passwordReg.test(cpass);
+  const verifyBothPass = (pass === cpass) ? 1 : 0
+
+  const opacity= (verifyUser && verifyEmail && verifyPassword && verifyCpassword && verifyBothPass) ? styles.enable : styles.disable  ;
 
 
+  // ONPRESS FUNCTION FOR LOGIN
   const onTap  = () => {
     console.log('clicked');
-    navigator.navigate('Login');
+    Snackbar.show({
+      text: 'Tap "OK" to get back to Login Screen',
+      duration: Snackbar.LENGTH_INDEFINITE,
+      numberOfLines: 2,
+      textColor: '#fff',
+      backgroundColor: '#41B225',
+      action: {
+        text: 'OK',
+        textColor: '#fff',
+        onPress: () => {
+           Snackbar.dismiss();
+           navigator.navigate('Login');
+         } 
+
+  }
+});
+    // navigator.navigate('Login');
   };
 
   return (
    
+    // DECLARED INPUT FIELDS
     <View style={styles.container}>
-       <Text style={styles.hey}> SIGN UP HERE </Text>
+       <Text style={styles.welcome}> SIGN UP HERE </Text>
       <Text style={styles.write}>' To create a new account, please enter your valid details '</Text> 
     
 
@@ -97,14 +135,14 @@ const Signup = () => {
 
     </View>
 
-    <Pressable style={styles.login} onPress={onTap}>
+    <TouchableOpacity style={styles.login} onPress={onTap}>
         <Text style={styles.loginText}>Log In</Text>
-    </Pressable>
+    </TouchableOpacity>
   
     <View style={styles.btnContainer}>
-        <Pressable style={styles.btn} onPress={validate}>
+        <TouchableOpacity style={[styles.btn, opacity]}>
           <Text style={styles.btnText}>Sign In</Text>
-        </Pressable>
+        </TouchableOpacity>
     </View>
       
     </View>
@@ -124,7 +162,7 @@ const styles = StyleSheet.create({
     width:'100%',
 },
 
-hey:{
+welcome:{
   color:'white',
   fontSize:50,
   marginTop:50,
@@ -277,12 +315,19 @@ email: {
     fontSize: 18,
     // fontWeight: 700,
   },
+
+  enable: {
+    opacity: 1,
+  }, 
+  disable: {
+    opacity: 0.5,
+  },
+
   eye: {
     height: 35,
     width: 35,
     marginHorizontal: -30,
   },
-
 
 
 })
